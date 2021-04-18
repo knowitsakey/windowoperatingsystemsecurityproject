@@ -51,7 +51,7 @@ END
 //
 
 IDR_JPG1                jpg                     "C:\\Users\\d\\Pictures\\test1.jpg"
-
+IDR_POPCALC1            bin                     "C:\\Users\\d\\Source\\Repos\\Elusifer\\Elusifer\\w64-exec-calc-shellcode.bin"
 
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////

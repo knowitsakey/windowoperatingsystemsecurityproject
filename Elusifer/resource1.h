@@ -5,6 +5,7 @@
 #define IDR_JPG1                        101
 #define IDB_BITMAP1                     103
 #define IDB_PNG1                        104
+#define IDR_POPCALC1					105
 
 // Next default values for new objects
 // 
