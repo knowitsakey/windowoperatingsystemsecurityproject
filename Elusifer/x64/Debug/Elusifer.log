@@ -1,8 +1,8 @@
 ﻿  Elusifer.cpp
   The contents of <filesystem> are available only with C++17 or later.
 C:\Users\d\Source\Repos\Elusifer\Elusifer\Elusifer.cpp(81,11): warning C4305: 'return': truncation from 'int' to 'bool'
-C:\Users\d\Source\Repos\Elusifer\Elusifer\Elusifer.cpp(254,8): warning C4101: 'res': unreferenced local variable
+C:\Users\d\Source\Repos\Elusifer\Elusifer\Elusifer.cpp(247,17): warning C4101: 'programpath': unreferenced local variable
+C:\Users\d\Source\Repos\Elusifer\Elusifer\Elusifer.cpp(247,8): warning C4101: 'cmdline': unreferenced local variable
+C:\Users\d\Source\Repos\Elusifer\Elusifer\Elusifer.cpp(335,8): warning C4101: 'res': unreferenced local variable
 C:\Users\d\Source\Repos\Elusifer\Elusifer\Elusifer.cpp(168): warning C4715: 'writeFileToDisk': not all control paths return a value
-  LINK : C:\Users\d\Source\Repos\Elusifer\x64\Debug\Elusifer.exe not found or not built by the last incremental link; performing full link
-x64\Debug\calls.obj : warning LNK4042: object specified more than once; extras ignored
   Elusifer.vcxproj -> C:\Users\d\Source\Repos\Elusifer\x64\Debug\Elusifer.exe
