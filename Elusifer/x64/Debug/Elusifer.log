@@ -1,8 +1,1 @@
-﻿  Elusifer.cpp
-  The contents of <filesystem> are available only with C++17 or later.
-C:\Users\d\Source\Repos\Elusifer\Elusifer\Elusifer.cpp(81,11): warning C4305: 'return': truncation from 'int' to 'bool'
-C:\Users\d\Source\Repos\Elusifer\Elusifer\Elusifer.cpp(253,17): warning C4101: 'programpath': unreferenced local variable
-C:\Users\d\Source\Repos\Elusifer\Elusifer\Elusifer.cpp(253,8): warning C4101: 'cmdline': unreferenced local variable
-C:\Users\d\Source\Repos\Elusifer\Elusifer\Elusifer.cpp(387,10): warning C4101: 'szTempFileName': unreferenced local variable
-C:\Users\d\Source\Repos\Elusifer\Elusifer\Elusifer.cpp(171): warning C4715: 'writeFileToDisk': not all control paths return a value
-  Elusifer.vcxproj -> C:\Users\d\Source\Repos\Elusifer\x64\Debug\Elusifer.exe
+﻿  Elusifer.vcxproj -> C:\Users\d\Source\Repos\Elusifer\x64\Debug\Elusifer.exe

