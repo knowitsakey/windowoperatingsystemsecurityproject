@@ -177,7 +177,7 @@
     <Image Include="..\..\..\..\Pictures\tp1.png" />
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="calls.asm" />
+    <MASM Include="callsstubs.asm" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

