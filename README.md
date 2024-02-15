@@ -1,7 +1,8 @@
-The assignment consisted of:
-Write a program targeting the following user behavior: downloading and running an executable file, for example, in a social engineering attack. 
+This is the code for the following assignment:
 
-The program should have several key features:
+Write a program targeting the following user behavior: downloading and running an executable file, for example, in a social engineering style cyberattack. 
+
+The program should have several mandatory features:
 1. Antivirus evasion against any EDR, including an enterprise EDR at the time, which was early 2022.
 2. Silent, in-memory UAC bypass at any notification level, including the highest warning level, AlwaysNotify.
 3. Persistence that survives a reboot, as a local admin process running at a medium integrity level
