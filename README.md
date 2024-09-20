@@ -20,7 +20,7 @@ The executable might be signed by an extended validation code signing certificat
 Or it might be served on a web page that implements a smartscreen code signing bypass, a vulnerability which is hopefully fixed for the future: https://msrc.microsoft.com/update-guide/vulnerability/CVE-2023-36025
 
 The key learning points in this project were:
-1. Built an intimate understanding of how malware developers write code. Malware development conventions are in juxtaposition to regular software development coding best practices because the intentions behind such conventions is to provide a robust way to bypass antivirus products.
+1. Built an intimate understanding of Windows operating system security.
 2. Understand how to detect and trace malware infections on microsoft windows based on a knowledge of malware coding techniques.
 
 Under the security model of the microsoft windows operating system, antivirus products can always be bypassed. Once an adversary controls a process, there are numerous ways to evade, elevate, and persist. A human expert still must always be in the loop in situations involving malware.
