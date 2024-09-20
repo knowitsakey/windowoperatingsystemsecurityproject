@@ -21,6 +21,6 @@ Or it might be served on a web page that implements a smartscreen code signing b
 
 The key learning points in this project were:
 1. Built an intimate understanding of Windows operating system security.
-2. Understand how to detect and trace malware infections on microsoft windows based on a knowledge of malware coding techniques.
+2. Understand how to detect and trace malware infections on microsoft windows based on a knowledge of idiosyncratic malware coding techniques.
 
 Under the security model of the microsoft windows operating system, antivirus products can always be bypassed. Once an adversary controls a process, there are numerous ways to evade, elevate, and persist. A human expert still must always be in the loop in situations involving malware.
